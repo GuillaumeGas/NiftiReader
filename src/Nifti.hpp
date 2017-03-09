@@ -22,7 +22,7 @@ namespace NR {
     // Total size : 348 bytes
     struct NrHeader { 
 	int sizeof_hdr;      // size of the header, must be 348 bytes
-	char data_type[10];  // not used, compatibility with ANALYZE
+	char data_type[10];  // not used, compatibility with ANALYZE (*1)
 	char db_name[18];    // ""
 	int extents;         // ""
 	short session_error; // ""
@@ -49,16 +49,16 @@ namespace NR {
 	float toffset;       // time axis shift
 	int glmax;           // not used, compatibility with ANALYZE
 	int glmin;           // ""
-	char descrip[80];    // any text
+	char descript[80];    // any text
 	char aux_file[24];   // auxiliary filename
-	short qfome_code;    // use the quaternion fields
+	short qform_code;    // use the quaternion fields
 	short sform_code;    // use of the affine fields
 	float quatern_b;     // Quaternion b parameter
 	float quatern_c;     // Quaternion c parameter
 	float quatern_d;     // Quaternion d parameter
 	float qoffset_x;     // Quaternion x shift
 	float qoffset_y;     // Quaternion y shift
-	float qoofset_z;     // Quaternion z shift
+	float qoffset_z;     // Quaternion z shift
 	float srow_x[4];     // 1st row affine transform
 	float srow_y[4];     // 2nd row affine transform
 	float srow_z[4];     // 3rd row affine transform
