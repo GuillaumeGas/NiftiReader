@@ -4,6 +4,8 @@
 #include <cstdio>
 
 #include "NiftiExceptions.hpp"
+#include "ImageContainer.hpp"
+#include "Voxel.hpp"
 
 /**
    Nifti header
@@ -15,6 +17,7 @@
  */
 
 #define NIFTI_HEADER_SIZE 348 //bytes
+#define NB_DATA_PER_VOXEL 3 // x, y, z (1 byte each)
 
 // namespace NR : Nifti Reader
 namespace NR {
@@ -49,7 +52,7 @@ namespace NR {
 	float toffset;       // time axis shift
 	int glmax;           // not used, compatibility with ANALYZE
 	int glmin;           // ""
-	char descript[80];    // any text
+	char descript[80];   // any text
 	char aux_file[24];   // auxiliary filename
 	short qform_code;    // use the quaternion fields
 	short sform_code;    // use of the affine fields
@@ -72,12 +75,20 @@ namespace NR {
 	~Nifti ();
 
 	void headerDump () const;
+	ImageContainerPtr generateImages ();
 
     private:
 	void _readHeader ();
+	void _readData ();
+	int _getFileSize ();
 
-	NrHeader _header;
+
 	std::string _fileName;
 	FILE * _file;
+	unsigned int _fileSize;
+
+	NrHeader _header;
+	char * _data;
+	unsigned int _dataSize;
     };
 };

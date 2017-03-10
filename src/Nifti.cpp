@@ -10,17 +10,67 @@ Nifti::Nifti (string fileName) {
     if (!_file)
 	throw FileNotFoundException (fileName);
 
+    _fileSize = _getFileSize ();
     _readHeader ();
+    _readData ();
 }
 
 Nifti::~Nifti () {
     if (_file)
 	fclose (_file);
+
+    if (_data)
+	delete[] _data;
 }
 
 void Nifti::_readHeader () {
     if (fread (&_header, NIFTI_HEADER_SIZE, 1, _file) != 1) // 1 represents the number of elements (one element = NIFTI_HEADER_SIZE bytes)
 	throw HeaderErrorException ();
+}
+
+void Nifti::_readData () {
+    _dataSize = _fileSize - _header.vox_offset;
+
+    cout << "Allocating " << _dataSize << " bytes..." << endl;
+    _data = new char[_dataSize];
+
+    if (!_data)
+	throw NiftiException ("Unable to allocate memory (_readData)");
+
+    if (fread (_data, _dataSize, 1, _file) != 1)
+	throw NiftiException ("Can't read file !");
+}
+
+int Nifti::_getFileSize () {
+    fseek (_file, 0L, SEEK_END);
+    int res = ftell (_file);
+    fseek (_file, 0L, SEEK_SET);
+    return res;
+}
+
+ImageContainerPtr Nifti::generateImages () {
+    ImageContainerPtr images = ImageContainer::New ();
+
+    short nbImages = _header.dim[3]; //TMP ?
+    ImagePtr image = Image::New ();
+    for (unsigned int i = 0; i < _dataSize; i += NB_DATA_PER_VOXEL) {
+	if (i % nbImages == 0) {
+	    if (image != NULL)
+		images->add (image);
+	    image = Image::New ();
+	}
+
+	char x = _data[i];
+	char y = _data[i + 1];
+	char z = _data[i + 2];
+
+	image->add (Voxel (x, y, z));
+    }
+
+    if (images->getSize () < nbImages)
+	images->add (image);
+
+    return images;
 }
 
 void Nifti::headerDump () const {
