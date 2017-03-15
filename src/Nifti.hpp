@@ -2,10 +2,13 @@
 
 #include <iostream>
 #include <cstdio>
+#include <cmath>
 
-#include "NiftiExceptions.hpp"
 #include "ImageContainer.hpp"
 #include "Voxel.hpp"
+
+#include "utils/NiftiExceptions.hpp"
+#include "utils/Matrix.hpp"
 
 /**
    Nifti header
@@ -16,8 +19,20 @@
    (*1) : ANALYZE 7.5 file format, old and problematic but widespread
  */
 
-#define NIFTI_HEADER_SIZE 348 //bytes
-#define NB_DATA_PER_VOXEL 3 // x, y, z (1 byte each)
+#define NIFTI_HEADER_SIZE 348   //bytes
+#define SROW_MATRIX_DIMX 4       //srow matrix 4x4 (used in method 3)
+#define SROW_MATRIX_DIMY 4
+#define ROT_MATRIX_DIM 3        //rotation matrix 3x3 (used in method 2)
+#define PIXDIM_MATRIX_DIMX 1    //pixdim matrix 1x3, one colum, three lines
+#define PIXDIM_MATRIX_DIMY 3
+#define QOFFSET_MATRIX_DIMX 1   //qoffset matrix 1x3
+#define QOFFSET_MATRIX_DIMY 3
+#define IJK_MATRIX_DIMX 1
+#define IJK_MATRIX_DIMY 3
+
+#define TODO(s)					\
+    cout << "Todo : " << s << endl;		\
+    exit (-1);					
 
 // namespace NR : Nifti Reader
 namespace NR {
@@ -71,17 +86,26 @@ namespace NR {
 
     class Nifti {
     public:
-	Nifti (const std::string fileName);
+	Nifti (const char * fileName);
 	~Nifti ();
 
 	void headerDump () const;
 	ImageContainerPtr generateImages ();
+
+	int getWidth () const;
+	int getHeight () const;
 
     private:
 	void _readHeader ();
 	void _readData ();
 	int _getFileSize ();
 
+	Voxel _transformVoxel (Voxel voxel);
+	Voxel _transformVoxelUsingMethod3 (Voxel voxel);
+	Voxel _transformVoxelUsingMethod2 (Voxel voxel);
+
+	void _initMethod3Matrix ();
+	void _initMethod2Matrix ();
 
 	std::string _fileName;
 	FILE * _file;
@@ -90,5 +114,12 @@ namespace NR {
 	NrHeader _header;
 	char * _data;
 	unsigned int _dataSize;
+
+	// The following var are using by the different methods (1, 2 and 3)
+	// Theses methods are used to transform the voxels (i, j, k => x, y, z coordinates)
+	Matrix<float> * _srowMatrix;    // 3rd Method, 4x4
+	Matrix<float> * _rotMatrix;     // 2nd Method
+	Matrix<float> * _pixDimMatrix;  // 2nd Method
+	Matrix<float> * _qOffsetMatrix; // 2nd Method
     };
 };

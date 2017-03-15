@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "Image.hpp"
-#include "NiftiExceptions.hpp"
+#include "utils/NiftiExceptions.hpp"
 
 namespace NR {
     class ImageContainer;
@@ -24,4 +24,21 @@ namespace NR {
 	std::vector<ImagePtr> _images;
 	unsigned int _count;
     };
+};
+
+class ImageContainerTest;
+typedef std::shared_ptr<ImageContainerTest> ImageContainerTestPtr;
+
+class ImageContainerTest {
+public:
+    static ImageContainerTestPtr New ();
+
+    void add (ImageTestPtr image);
+    ImageTestPtr get (unsigned int index) const;
+    std::vector<ImageTestPtr> & getAll ();
+    unsigned int getSize () const;
+
+private:
+    std::vector<ImageTestPtr> _images;
+    unsigned int _count;
 };

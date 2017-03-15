@@ -4,7 +4,9 @@
 #include <memory>
 #include <vector>
 
-#include "NiftiExceptions.hpp"
+#include <QPoint>
+
+#include "utils/NiftiExceptions.hpp"
 #include "Voxel.hpp"
 
 namespace NR {
@@ -17,6 +19,7 @@ namespace NR {
 	Voxel get (unsigned int index) const;
 	std::vector<Voxel> & getAll ();
 	unsigned int getSize () const;
+	void dump () const;
 
 	static ImagePtr New ();
 
@@ -24,4 +27,22 @@ namespace NR {
 	std::vector<Voxel> _voxels;
 	unsigned int _count;
     };
+};
+
+class ImageTest;
+typedef std::shared_ptr<ImageTest> ImageTestPtr;
+
+class ImageTest {
+public:
+    void add (QPoint point);
+    QPoint get (unsigned int index) const;
+    std::vector<QPoint> * getAll ();
+    unsigned int getSize () const;
+    void dump () const;
+
+    static ImageTestPtr New ();
+
+private:
+    std::vector<QPoint> _voxels;
+    unsigned int _count;
 };
